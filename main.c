@@ -8,13 +8,13 @@ typedef struct gnode {
     int label;
     int* weights;
     struct gnode* next;
-    int steps;
 } gnode;
 
 typedef struct tnode {
     int label;
     int distance;
     int predecessor;
+    int steps;
 } tnode;
 
 gnode** graph;
@@ -22,7 +22,7 @@ gnode** graph;
 void add_edge(int from, int to, int weights[], int period);
 void dijkstra(int source, int SIZE, int period, int target);
 void dequeue(int* arr, int n);
-void update(struct tnode* arr, int i);
+void update(struct tnode* arr, int i, int heap_index[]);
 
 void add_edge(int from, int to, int weights[], int period) {
     gnode* new = (struct gnode*) malloc(sizeof(struct gnode));
@@ -68,17 +68,17 @@ void dijkstra(int source, int SIZE, int period, int target) {
                 arr[heap_index[u]].distance + weight; // update distance w/ step weight
                 arr[heap_index[v->label]].predecessor = u;
                 arr[heap_index[v->label]].steps = arr[heap_index[u]].steps + 1;
-                update(arr, heap_index[v->label]); //upward heapify
+                update(arr, heap_index[v->label], heap_index); //upward heapify
             }
             v = v->next; // move to adjacent
         }
     }
     int pred_list[SIZE];
-    k = 0;
+    int k = 0;
     while ((arr[heap_index[target]].predecessor != -1)
             && (target != source)) {  
         pred_list[k] = target;
-        target = arr[heap_index[target]].predecessor
+        target = arr[heap_index[target]].predecessor;
         k++;
     }
     pred_list[k] = source; // add source to end of list
@@ -109,7 +109,7 @@ void dequeue(int* arr, int n) { // n is the last index
     arr[i] = temp;
 }
 
-void update(struct tnode* arr, int i)
+void update(struct tnode* arr, int i, int heap_index[])
 {
     //Don’t forget to update heap_index
     int temp;

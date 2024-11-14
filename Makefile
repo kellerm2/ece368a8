@@ -14,7 +14,7 @@ testmemory: $(TARGET)
 
 all: a8
 
-a6: $(OBJS)
+a8: $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 
 clean:
