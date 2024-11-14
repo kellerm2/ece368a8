@@ -19,26 +19,26 @@ typedef struct tnode {
 
 gnode** graph;
 
-void add_edge(int from, int to, int weights[], int period);
+void add_edge(int from, int to, int weight_main[], int period);
 void dijkstra(int source, int SIZE, int period, int target);
-void dequeue(int* arr, int n);
-void update(struct tnode* arr, int i, int heap_index[]);
+void dequeue(tnode* arr, int n);
+void update(tnode* arr, int i, int heap_index[]);
 
-void add_edge(int from, int to, int weights[], int period) {
+void add_edge(int from, int to, int weight_main[], int period) {
     gnode* new = (struct gnode*) malloc(sizeof(struct gnode));
     new->label = to;
     new->weights = (int*) malloc(period * sizeof(int));
     for (int i = 0; i < period; i++) {
-        new->weights[i] = weights[i];
+        new->weights[i] = weight_main[i];
     }
     new->next = graph[from];
     graph[from] = new;
 }
 
 void dijkstra(int source, int SIZE, int period, int target) {
-    struct tnode arr[SIZE]; // heap arr size of nodes, static
     int n = SIZE; // n nodes
-    int heap_index[SIZE]; // heap_index, static
+    struct tnode* arr = (struct tnode*) malloc(SIZE * sizeof(struct tnode));
+    int* heap_index = (int*) malloc(SIZE * sizeof(int));
     for(int i = 0; i < SIZE; i++) { // initialize heap and heap_index
         arr[i].label = i;
         arr[i].distance = INT_MAX;
@@ -53,7 +53,6 @@ void dijkstra(int source, int SIZE, int period, int target) {
     heap_index[0] = source;
     heap_index[source] = 0;
     
-    int step = 0;
     while (n != 0) {
         dequeue(arr, n - 1); // downward heapify for sorting δ(s, u)
         n--;
@@ -73,7 +72,7 @@ void dijkstra(int source, int SIZE, int period, int target) {
             v = v->next; // move to adjacent
         }
     }
-    int pred_list[SIZE];
+    int pred_list[25]; //CHANGE LATERRRR
     int k = 0;
     while ((arr[heap_index[target]].predecessor != -1)
             && (target != source)) {  
@@ -89,18 +88,20 @@ void dijkstra(int source, int SIZE, int period, int target) {
     }
     printf("\n");
 
+    free(arr);
+    free(heap_index);
 }
 
-void dequeue(int* arr, int n) { // n is the last index
-    int temp = arr[n]; // exchange the root and the last node
+void dequeue(tnode* arr, int n) { // n is the last index
+    tnode temp = arr[n]; // exchange the root and the last node
     arr[n] = arr[0];
     arr[0] = temp;
     n--; // decrease the heap size
     int i = 0, j;
     while ((j = 2*i+1) <= n) { // left child exists?
-        if (j < n && arr[j] < arr[j+1]) // if right child greater
+        if (j < n && arr[j].distance < arr[j+1].distance) // if right child greater
         j = j+1; // pick right child
-        if (temp >= arr[j]) break;
+        if (temp.distance >= arr[j].distance) break;
         else { // move large child
             arr[i] = arr[j];
             i = j;
@@ -139,21 +140,39 @@ int main(int argc, char* argv[]) {
     char line[25];
     int vertices;
     int period;
-    fscanf(file, "%d %d", &vertices, &period);
+    assert(fscanf(file, "%d %d", &vertices, &period) == 2);
     
-    graph = (gnode**) malloc(vertices * sizeof(gnode));
+    graph = (gnode**) malloc(vertices * sizeof(gnode*));
+    assert(graph != NULL);
+    
     int vs;
     int vt;
-    int weights[period];
-    while (fgets(line, sizeof(line), file)) {
-        scanf(line, "%d %d", &vs, &vt);    
+    
+    while (fscanf(file, "%d %d", &vs, &vt) != EOF) {  
+        printf("HELLO %d %d", vs, vt);
+        int* weight_main = (int*) malloc(period * sizeof(int));
         for (int i = 0; i < period; i++) {
-            scanf(line, "%d", &weights[i]);
-            //make graph node w this
-            add_edge(vs, vt, weights, period);
+            int hey = fscanf(file, "%d", &weight_main[i]);
+            printf(" %d", weight_main[i]);
         }
+        //make graph node w this
+        add_edge(vs, vt, weight_main, period);
+        printf("\n");
     }
     fclose(file);
+
+
+    for (int p = 0; p < vertices; p++) {
+        gnode* curr = graph[p];
+        while (curr) {
+            printf("WHAT %d", curr->label);
+            for (int t = 0; t < period; t++) {
+                printf(" %d", curr->weights[t]);
+            }
+            printf("\n");
+            curr = curr->next;
+        }
+    }
     
     int user_start;
     int user_target;
