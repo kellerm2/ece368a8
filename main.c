@@ -18,11 +18,12 @@ typedef struct tnode {
 } tnode;
 
 gnode** graph;
+int* heap_index;
 
 void add_edge(int from, int to, int weight_main[], int period);
 void dijkstra(int source, int SIZE, int period, int target);
 void dequeue(tnode* arr, int n);
-void update(tnode* arr, int i, int heap_index[]);
+void update(tnode* arr, int i);
 
 void add_edge(int from, int to, int weight_main[], int period) {
     gnode* new = (struct gnode*) malloc(sizeof(struct gnode));
@@ -38,7 +39,8 @@ void add_edge(int from, int to, int weight_main[], int period) {
 void dijkstra(int source, int SIZE, int period, int target) {
     int n = SIZE; // n nodes
     struct tnode* arr = (struct tnode*) malloc(SIZE * sizeof(struct tnode));
-    int* heap_index = (int*) malloc(SIZE * sizeof(int));
+    heap_index = (int*) malloc(SIZE * sizeof(int));
+
     for(int i = 0; i < SIZE; i++) { // initialize heap and heap_index
         arr[i].label = i;
         arr[i].distance = INT_MAX;
@@ -48,7 +50,7 @@ void dijkstra(int source, int SIZE, int period, int target) {
     }
     arr[0].distance = 0; // initialize start node as dist 0
     arr[0].label = source;
-    arr[source].steps = 0;
+    // arr[source].steps = 0;
     arr[source].label = 0;
     heap_index[0] = source;
     heap_index[source] = 0;
@@ -59,7 +61,11 @@ void dijkstra(int source, int SIZE, int period, int target) {
         int u = arr[n].label; // u is current vertex label
         struct gnode* v = graph[u]; // v is adjacency list of u
         while (v != NULL) {
-            int weight = v->weights[arr[heap_index[u]].steps % period]; // step weight
+            // step weight
+            int weight_index = arr[heap_index[u]].steps % period;
+            int weight = v->weights[weight_index];
+            print("U: %d STep: %d\n", u, arr[heap_index[u]]);
+
             if (heap_index[v->label] < n && // remainings in heap
             arr[heap_index[v->label]].distance >
             arr[heap_index[u]].distance + weight) {
@@ -67,20 +73,18 @@ void dijkstra(int source, int SIZE, int period, int target) {
                 arr[heap_index[u]].distance + weight; // update distance w/ step weight
                 arr[heap_index[v->label]].predecessor = u;
                 arr[heap_index[v->label]].steps = arr[heap_index[u]].steps + 1;
-                update(arr, heap_index[v->label], heap_index); //upward heapify
+                update(arr, heap_index[v->label]); //upward heapify
             }
             v = v->next; // move to adjacent
         }
     }
     int pred_list[25]; //CHANGE LATERRRR
     int k = 0;
-    while ((arr[heap_index[target]].predecessor != -1)
-            && (target != source)) {  
+    while (target != -1) {  
         pred_list[k] = target;
         target = arr[heap_index[target]].predecessor;
         k++;
     }
-    pred_list[k] = source; // add source to end of list
     // list now in reverse order
     for (int l = k; l >= 0; l--) {
         if (l != 0) printf("%d ", pred_list[l]);
@@ -108,9 +112,10 @@ void dequeue(tnode* arr, int n) { // n is the last index
         }
     }
     arr[i] = temp;
+    heap_index[temp.label] = i;
 }
 
-void update(struct tnode* arr, int i, int heap_index[])
+void update(struct tnode* arr, int i)
 {
     //Don’t forget to update heap_index
     tnode temp = arr[i];
@@ -144,6 +149,9 @@ int main(int argc, char* argv[]) {
     
     graph = (gnode**) malloc(vertices * sizeof(gnode*));
     assert(graph != NULL);
+    for (int g = 0; g < vertices; g++) {
+        graph[g] = NULL;
+    }
     
     int vs;
     int vt;
@@ -173,7 +181,7 @@ int main(int argc, char* argv[]) {
     
     int user_start;
     int user_target;
-    while (scanf("%d %d", &user_start, &user_target)) {
+    while (scanf("%d %d", &user_start, &user_target) == 2) {
         // find shortest path from user_start to user_target
         dijkstra(user_start, vertices, period, user_target);
     }
