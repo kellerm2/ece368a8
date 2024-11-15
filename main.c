@@ -137,7 +137,6 @@ int main(int argc, char* argv[]) {
 
     // V N (# of vertices, period)
     // vs vt w1 . . . wN 
-    char line[25];
     int vertices;
     int period;
     assert(fscanf(file, "%d %d", &vertices, &period) == 2);
@@ -149,30 +148,27 @@ int main(int argc, char* argv[]) {
     int vt;
     
     while (fscanf(file, "%d %d", &vs, &vt) != EOF) {  
-        printf("HELLO %d %d", vs, vt);
         int* weight_main = (int*) malloc(period * sizeof(int));
         for (int i = 0; i < period; i++) {
-            int hey = fscanf(file, "%d", &weight_main[i]);
-            printf(" %d", weight_main[i]);
+            assert(fscanf(file, "%d", &weight_main[i]) == 1);
         }
         //make graph node w this
         add_edge(vs, vt, weight_main, period);
-        printf("\n");
     }
     fclose(file);
 
 
-    for (int p = 0; p < vertices; p++) {
-        gnode* curr = graph[p];
-        while (curr) {
-            printf("WHAT %d", curr->label);
-            for (int t = 0; t < period; t++) {
-                printf(" %d", curr->weights[t]);
-            }
-            printf("\n");
-            curr = curr->next;
-        }
-    }
+    // for (int p = 0; p < vertices; p++) {
+    //     gnode* curr = graph[p];
+    //     while (curr) {
+    //         printf("from %d to %d", p, curr->label);
+    //         for (int t = 0; t < period; t++) {
+    //             printf(" %d", curr->weights[t]);
+    //         }
+    //         printf("\n");
+    //         curr = curr->next;
+    //     }
+    // }
     
     int user_start;
     int user_target;
