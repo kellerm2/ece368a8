@@ -98,11 +98,11 @@ void dequeue(tnode* arr, int n) { // n is the last index
     arr[0] = temp;
     n--; // decrease the heap size
     int i = 0, j;
-    while ((j = 2*i+1) <= n) { // left child exists?
-        if (j < n && arr[j].distance < arr[j+1].distance) // if right child greater
+    while ((j = 2*i+1) <= n) { // while left child exists
+        if (j < n && arr[j].distance > arr[j+1].distance) // if right child smaller
         j = j+1; // pick right child
-        if (temp.distance >= arr[j].distance) break;
-        else { // move large child
+        if (temp.distance <= arr[j].distance) break; // if parent smaller than child, done
+        else { // move small child
             arr[i] = arr[j];
             i = j;
         }
@@ -113,19 +113,20 @@ void dequeue(tnode* arr, int n) { // n is the last index
 void update(struct tnode* arr, int i, int heap_index[])
 {
     //Don’t forget to update heap_index
-    int temp;
-    while (i != 0 && arr[i].distance < arr[(i - 1) / 2].distance) {
-        // Swap nodes in the heap and update the heap index
-        temp = heap_index[arr[i].label]; // swap heap index
-        heap_index[arr[i].label] = heap_index[arr[(i - 1) / 2].label];
-        heap_index[arr[(i - 1) / 2].label] = temp;
+    tnode temp = arr[i];
 
-        tnode tmp = arr[i]; // swap tnodes in heap
-        arr[i] = arr[(i - 1) / 2];
-        arr[(i - 1) / 2] = tmp;
+    while (i > 0) {
+        int parent = (i - 1) / 2; // parent index
+        if (arr[parent].distance <= temp.distance) // if parent distance less, done
+            break;
 
-        i = (i - 1) / 2; // update i
+        // move parent down if parent has greater distance
+        arr[i] = arr[parent];
+        heap_index[arr[parent].label] = i;
+        i = parent;
     }
+    arr[i] = temp;
+    heap_index[temp.label] = i; // update heap_index
 }
 
 int main(int argc, char* argv[]) {
