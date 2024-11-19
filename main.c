@@ -186,7 +186,6 @@ int main(int argc, char* argv[]) {
     }
     fclose(file);
 
-
     // for (int p = 0; p < vertices; p++) {
     //     gnode* curr = graph[p];
     //     while (curr) {
