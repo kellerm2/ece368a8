@@ -48,49 +48,56 @@ void dijkstra(int source, int SIZE, int period, int target) {
         arr[i].steps = 0;
         heap_index[i] = i;
     }
-    arr[0].distance = 0; // initialize start node as dist 0
+    arr[0].distance = 0;
     arr[0].label = source;
-    // arr[source].steps = 0;
     arr[source].label = 0;
     heap_index[0] = source;
     heap_index[source] = 0;
     
     while (n != 0) {
-        dequeue(arr, n - 1); // downward heapify for sorting δ(s, u)
+        dequeue(arr, n - 1); // downward heapify for sorting δ(s, u), node w/ smallest distance
         n--;
         int u = arr[n].label; // u is current vertex label
         struct gnode* v = graph[u]; // v is adjacency list of u
+        printf("We are visiting: %d\n", u);
+
         while (v != NULL) {
             // step weight
-            int weight_index = arr[heap_index[u]].steps % period;
+            int weight_index = 0;//arr[heap_index[u]].steps % period;
             int weight = v->weights[weight_index];
-            print("U: %d STep: %d\n", u, arr[heap_index[u]]);
+            printf("The weight from %d to %d is: %d\n", u, v->label, weight);
 
             if (heap_index[v->label] < n && // remainings in heap
-            arr[heap_index[v->label]].distance >
-            arr[heap_index[u]].distance + weight) {
-                arr[heap_index[v->label]].distance =
-                arr[heap_index[u]].distance + weight; // update distance w/ step weight
-                arr[heap_index[v->label]].predecessor = u;
+            arr[heap_index[v->label]].distance > arr[heap_index[u]].distance + weight) {
+                arr[heap_index[v->label]].distance = arr[heap_index[u]].distance + weight; // update distance w/ step weight
+                arr[v->label].predecessor = u;
+                //printf("UPDATED predecessor: Node %d -> %d\n", v->label, u);
                 arr[heap_index[v->label]].steps = arr[heap_index[u]].steps + 1;
                 update(arr, heap_index[v->label]); //upward heapify
             }
             v = v->next; // move to adjacent
         }
     }
-    int pred_list[25]; //CHANGE LATERRRR
-    int k = 0;
-    while (target != -1) {  
-        pred_list[k] = target;
-        target = arr[heap_index[target]].predecessor;
-        k++;
+
+    // for (int l = 0; l <SIZE; l++){
+    //     printf("ARR %d %d\n", l, arr[l].label);
+    //     printf("HI %d", heap_index[l]);
+    // }
+
+    int path[25];
+    int path_length = 0;
+    int current = target;
+    while (current != -1) {
+        path[path_length++] = current;
+        printf("CURRENT: %d\n", current);
+        current = arr[current].predecessor;
     }
-    // list now in reverse order
-    for (int l = k; l >= 0; l--) {
-        if (l != 0) printf("%d ", pred_list[l]);
-        else printf("%d", pred_list[l]);
-    }
-    printf("\n");
+
+    // for (int i = path_length - 1; i >= 0; i--) {
+    //     printf("BLAH%d", path[i]);
+    //     if (i > 0) printf(" ");
+    // }
+    // printf("\n");
 
     free(arr);
     free(heap_index);
@@ -100,6 +107,8 @@ void dequeue(tnode* arr, int n) { // n is the last index
     tnode temp = arr[n]; // exchange the root and the last node
     arr[n] = arr[0];
     arr[0] = temp;
+    heap_index[arr[0].label] = 0; // swap the nodes in heap_index
+    heap_index[arr[n].label] = n;
     n--; // decrease the heap size
     int i = 0, j;
     while ((j = 2*i+1) <= n) { // while left child exists
@@ -108,30 +117,41 @@ void dequeue(tnode* arr, int n) { // n is the last index
         if (temp.distance <= arr[j].distance) break; // if parent smaller than child, done
         else { // move small child
             arr[i] = arr[j];
+            heap_index[arr[i].label] = i; // Update heap_index for the moved node
             i = j;
         }
     }
     arr[i] = temp;
-    heap_index[temp.label] = i;
+    heap_index[temp.label] = i; // Update heap_index for the final position
+    for (int k = 0; k <= n; k++){
+        printf("The order of nodes is: %d indexed at %d w/ distance %d\n", 
+        arr[k].label, heap_index[arr[k].label], arr[k].distance);
+    }
+    printf("DEQUEUED_______________\n");
 }
 
 void update(struct tnode* arr, int i)
 {
     //Don’t forget to update heap_index
-    tnode temp = arr[i];
-
-    while (i > 0) {
-        int parent = (i - 1) / 2; // parent index
-        if (arr[parent].distance <= temp.distance) // if parent distance less, done
-            break;
-
-        // move parent down if parent has greater distance
+    // upward heapify
+    while (i > 0 && arr[i].distance < arr[(i - 1) / 2].distance) {
+        // Swap with parent
+        int parent = (i - 1) / 2;
+        tnode temp = arr[i];
         arr[i] = arr[parent];
+        arr[parent] = temp;
+
+        // Update heap_index to reflect new positions
+        heap_index[arr[i].label] = parent;
         heap_index[arr[parent].label] = i;
+
         i = parent;
     }
-    arr[i] = temp;
-    heap_index[temp.label] = i; // update heap_index
+    for (int k = 0; k < 4; k++){
+        printf("The order of nodes is: %d indexed at %d w/ distance %d\n", 
+        arr[k].label, heap_index[arr[k].label], arr[k].distance);
+    }
+    printf("UPDATED_______________\n");
 }
 
 int main(int argc, char* argv[]) {
@@ -183,6 +203,7 @@ int main(int argc, char* argv[]) {
     int user_target;
     while (scanf("%d %d", &user_start, &user_target) == 2) {
         // find shortest path from user_start to user_target
+        //printf("%d %d heyyyy\n", user_start, user_target);
         dijkstra(user_start, vertices, period, user_target);
     }
 
