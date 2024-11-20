@@ -63,7 +63,7 @@ void dijkstra(int source, int SIZE, int period, int target) {
 
         while (v != NULL) {
             // step weight
-            int weight_index = 0;//arr[heap_index[u]].steps % period;
+            int weight_index = arr[heap_index[u]].steps % period;
             int weight = v->weights[weight_index];
             printf("The weight from %d to %d is: %d\n", u, v->label, weight);
 
@@ -93,11 +93,12 @@ void dijkstra(int source, int SIZE, int period, int target) {
         current = arr[current].predecessor;
     }
 
-    // for (int i = path_length - 1; i >= 0; i--) {
-    //     printf("BLAH%d", path[i]);
-    //     if (i > 0) printf(" ");
-    // }
-    // printf("\n");
+    //printf("path: %d", path_length);
+    for (int i = path_length - 1; i >= 0; i--) {
+        printf("%d", path[i]);
+        if (i > 0) printf(" ");
+    }
+    printf("\n");
 
     free(arr);
     free(heap_index);
