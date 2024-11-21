@@ -6,8 +6,8 @@
 
 typedef struct gnode {
     int label;
-    int time;       // Time state
-    int weight;     // Weight for this transition
+    int time;
+    int weight;
     struct gnode* next;
 } gnode;
 
@@ -16,7 +16,6 @@ typedef struct tnode {
     int time;
     int distance;
     int predecessor;
-    //int steps;
 } tnode;
 
 gnode** graph;
@@ -30,6 +29,9 @@ void dijkstra(int source, int SIZE, int period, int target);
 void dequeue(tnode* arr, int n, int period);
 void update(tnode* arr, int i, int period, int n);
 
+// Taken from the course slides, constructs the graph by creating an edge with
+// periodic weights btwn to and from nodes, each edge holds only 1 weight, so periodic weighted
+// edges with period N, there are N edges to account for it
 void add_edge(int from, int to, int weight_main[], int period) {
     for (int t = 0; t < period; t++) {
         gnode* new = (struct gnode*) malloc(sizeof(struct gnode));
@@ -86,7 +88,6 @@ void dijkstra(int source, int SIZE, int period, int target) {
                 arr[heap_index[v_index]].distance = arr[heap_index[u * period + t]].distance + v->weight; // update distance w/ step weight
                 arr[heap_index[v_index]].predecessor = heap_index[u * period + t];
                 // printf("UPDATED predecessor: Node %d has pred %d at time %d\n", arr[heap_index[v_index]].label, u, t);
-                //arr[heap_index[v->label]].steps = arr[heap_index[u]].steps + 1;
                 update(arr, heap_index[v_index], period, n); //upward heapify
             }
             v = v->next; // move to adjacent
@@ -123,7 +124,7 @@ void dijkstra(int source, int SIZE, int period, int target) {
         
     }
 
-    // for (int p = 0; p < 10; p++) {
+    // for (int p = 0; p < SIZE * period; p++) {
     //     printf("node: %d i: %d pred: %d\n", arr[heap_index[p]].label, heap_index[p], arr[heap_index[p]].predecessor);
     // }
     // printf("min distance: %d\n", min);
@@ -255,6 +256,7 @@ int main(int argc, char* argv[]) {
         }
         //make graph node w this
         add_edge(vs, vt, weight_main, period);
+        free(weight_main);
     }
     fclose(file);
 
@@ -275,17 +277,15 @@ int main(int argc, char* argv[]) {
     int user_target;
     while (scanf("%d %d", &user_start, &user_target) == 2) {
         // find shortest path from user_start to user_target
-        //printf("%d %d heyyyy\n", user_start, user_target);
         dijkstra(user_start, vertices, period, user_target);
     }
 
-    // free weights alloc, gnode alloc, graph
+    // free gnode alloc, graph
     for (int j = 0; j < vertices * period; j++) {
         gnode* current = graph[j];
         while (current != NULL) {
             gnode* tofree = current;
             current = current->next;
-            //free(temp->weights);
             free(tofree);
         }
     }
