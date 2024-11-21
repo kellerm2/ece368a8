@@ -84,7 +84,7 @@ void dijkstra(int source, int SIZE, int period, int target) {
             if (heap_index[v_index] < n && // remainings in heap
             arr[heap_index[v_index]].distance > arr[heap_index[u * period + t]].distance + v->weight) {
                 arr[heap_index[v_index]].distance = arr[heap_index[u * period + t]].distance + v->weight; // update distance w/ step weight
-                arr[heap_index[v_index]].predecessor = u;
+                arr[heap_index[v_index]].predecessor = heap_index[u * period + t];
                 // printf("UPDATED predecessor: Node %d has pred %d at time %d\n", arr[heap_index[v_index]].label, u, t);
                 //arr[heap_index[v->label]].steps = arr[heap_index[u]].steps + 1;
                 update(arr, heap_index[v_index], period, n); //upward heapify
@@ -123,29 +123,38 @@ void dijkstra(int source, int SIZE, int period, int target) {
         
     }
 
-    // for (int p = 0; p < SIZE * period; p++) {
-    //     printf("node: %d i: %d pred: %d\n", arr[heap_index[p]].label, heap_index[p], arr[heap_index[p]].predecessor);
-    // }
-    //printf("min distance: %d\n", min);
-    //printf("%d", mint);
-    //printf("%d\n", arr[mint].label);
-    int path_index = 0;
-    while (arr[mint].predecessor != source) {
-        //printf(" %d pred: %d\n", arr[mint].label, arr[mint].predecessor);
-        path[path_index] = arr[mint].label;
-        // printf("path: %d\n", path[path_index]);
-        mint++;
-        path_index++;
-        // printf("index: %d %d\n", path_index, mint);
+    for (int p = 0; p < 10; p++) {
+        printf("node: %d i: %d pred: %d\n", arr[heap_index[p]].label, heap_index[p], arr[heap_index[p]].predecessor);
     }
+    printf("min distance: %d\n", min);
+    printf("%d ", mint);
+    printf("%d\n", arr[mint].label);
+    int path_index = 0;
+    while (arr[mint].predecessor != -1) {
+        //printf(" %d pred: %d\n", arr[mint].label, arr[mint].predecessor);
+        //path[path_index] = arr[mint].label;
+        // printf("path: %d\n", path[path_index]);
+        //mint++;
+        //path_index++;
+        // printf("index: %d %d\n", path_index, mint);
+        path[path_index++] = arr[mint].label;
+
+        int pred_index = arr[mint].predecessor;
+        //int curr_time = arr[mint].time;
+        mint = pred_index; //index to go next
+            
+    }
+    
     //printf(" %d pred: %d", arr[mint].label, arr[mint].predecessor);
-    path[path_index] = arr[mint].label;
+    //path[path_index] = arr[mint].label;
     // printf("index: %d %d\n", path_index, mint);
-    path_index++;
-    path[path_index] = arr[mint].predecessor;
+    //path_index++;
+    //path[path_index] = arr[mint].predecessor;
     //printf("FINAL: %d ", arr[mint].predecessor);
     // printf("index: %d %d\n", path_index, mint);
-
+    if (arr[mint].label == source) {
+        path[path_index] = source;
+    }
     for (int pi = path_index; pi >= 0; pi--) {
         printf("%d ", path[pi]);
     }
