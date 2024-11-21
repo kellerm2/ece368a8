@@ -67,7 +67,6 @@ void dijkstra(int source, int SIZE, int period, int target) {
         int u = arr[n].label; // u is current vertex label
         int t = arr[n].time; // t is current time
         struct gnode* v = graph[u * period + t]; // v is adjacency list of u
-        printf("We are visiting: %d\n", u);
 
         while (v != NULL) {
             // step weight
@@ -79,8 +78,8 @@ void dijkstra(int source, int SIZE, int period, int target) {
             if (heap_index[v_index] < n && // remainings in heap
             arr[heap_index[v_index]].distance > arr[heap_index[u * period + t]].distance + v->weight) {
                 arr[heap_index[v_index]].distance = arr[heap_index[u * period + t]].distance + v->weight; // update distance w/ step weight
-                arr[heap_index[v_index]].predecessor = u * period + t;
-                //printf("UPDATED predecessor: Node %d -> %d\n", v->label, u);
+                arr[heap_index[v_index]].predecessor = u;
+                // printf("UPDATED predecessor: Node %d has pred %d at time %d\n", arr[heap_index[v_index]].label, u, t);
                 //arr[heap_index[v->label]].steps = arr[heap_index[u]].steps + 1;
                 update(arr, heap_index[v_index], period, n); //upward heapify
             }
@@ -94,11 +93,11 @@ void dijkstra(int source, int SIZE, int period, int target) {
     for (int y=0;y<100;y++) {
         dist_list[y] = 0;
         t_list[y] = 0;
-        path[y] = 0;
+        path[y] = -1;
     }
     int l = 0;
     for (int t = 0; t < period * SIZE; t++) {
-        if (arr[t].label == target) {
+        if (arr[t].label == target && arr[t].distance > 0) {
             dist_list[l] = arr[t].distance;
             t_list[l] = t;
             l++;
@@ -114,26 +113,34 @@ void dijkstra(int source, int SIZE, int period, int target) {
         }
         
     }
-    printf("min %d %d", min, mint);
-    
-    int path_index = 0;
-    int current = target;
 
-    while (current != -1) {
-        path[path_index] = current;
-        path_index++;
-        printf("%d", path_index);
-        current = arr[current].predecessor;
-    }
-
-    // for (int p = path_index - 1; p >= 0; p--) {
-    //     int t_val = path[p];
-    //     if (arr[t_val].label == target) { 
-    //         printf("%d\n", arr[t_val].label);
-    //         break;
-    //     }
-    //     printf("%d ", arr[t_val].label);
+    // for (int p = 0; p < SIZE * period; p++) {
+    //     printf("node: %d i: %d pred: %d\n", arr[heap_index[p]].label, heap_index[p], arr[heap_index[p]].predecessor);
     // }
+    //printf("min distance: %d\n", min);
+    //printf("%d", mint);
+    //printf("%d\n", arr[mint].label);
+    int path_index = 0;
+    while (arr[mint].predecessor != source) {
+        //printf(" %d pred: %d\n", arr[mint].label, arr[mint].predecessor);
+        path[path_index] = arr[mint].label;
+        // printf("path: %d\n", path[path_index]);
+        mint++;
+        path_index++;
+        // printf("index: %d %d\n", path_index, mint);
+    }
+    //printf(" %d pred: %d", arr[mint].label, arr[mint].predecessor);
+    path[path_index] = arr[mint].label;
+    // printf("index: %d %d\n", path_index, mint);
+    path_index++;
+    path[path_index] = arr[mint].predecessor;
+    //printf("FINAL: %d ", arr[mint].predecessor);
+    // printf("index: %d %d\n", path_index, mint);
+
+    for (int pi = path_index; pi >= 0; pi--) {
+        printf("%d ", path[pi]);
+    }
+    printf("\n");
 
     free(arr);
     free(heap_index);
@@ -160,12 +167,12 @@ void dequeue(tnode* arr, int n, int period) { // n is the last index
     }
     arr[i] = temp;
     heap_index[temp.label * period + temp.time] = i; // Update heap_index for the final position
-    for (int k = 0; k <= n; k++) {
-        if (heap_index[k] != -1) {
-            printf("Node (%d, %d): Distance = %d\n", arr[k].label, arr[k].time, arr[k].distance);
-        }
-    }
-    printf("DEQUEUED_______________\n");
+    // for (int k = 0; k <= n; k++) {
+    //     if (heap_index[k] != -1) {
+    //         printf("Node (%d, %d): Distance = %d\n", arr[k].label, arr[k].time, arr[k].distance);
+    //     }
+    // }
+    // printf("DEQUEUED_______________\n");
 }
 
 void update(struct tnode* arr, int i, int period, int n)
@@ -185,13 +192,13 @@ void update(struct tnode* arr, int i, int period, int n)
 
         i = parent;
     }
-    printf("Heap after update at index %d:\n", i);
-    for (int j = 0; j <= n; j++) {
-        if (heap_index[j] != -1) {
-            printf("Node (%d, %d): Distance = %d\n", arr[j].label, arr[j].time, arr[j].distance);
-        }
-    }
-    printf("UPDATED_______________\n");
+    // printf("Heap after update at index %d:\n", i);
+    // for (int j = 0; j <= n; j++) {
+    //     if (heap_index[j] != -1) {
+    //         printf("Node (%d, %d): Distance = %d\n", arr[j].label, arr[j].time, arr[j].distance);
+    //     }
+    // }
+    // printf("UPDATED_______________\n");
 }
 
 int main(int argc, char* argv[]) {
@@ -226,18 +233,18 @@ int main(int argc, char* argv[]) {
     }
     fclose(file);
 
-    for (int i = 0; i < vertices; i++) {
-        for (int t = 0; t < period; t++) { 
-            int index = i * period + t;
-            printf("Node (%d, %d):\n", i, t);
+    // for (int i = 0; i < vertices; i++) {
+    //     for (int t = 0; t < period; t++) { 
+    //         int index = i * period + t;
+    //         printf("Node (%d, %d):\n", i, t);
             
-            gnode* current = graph[index];
-            while (current != NULL) {
-                printf("  -> (%d, %d) [weight: %d]\n", current->label, current->time, current->weight);
-                current = current->next;
-            }
-        }
-    }
+    //         gnode* current = graph[index];
+    //         while (current != NULL) {
+    //             printf("  -> (%d, %d) [weight: %d]\n", current->label, current->time, current->weight);
+    //             current = current->next;
+    //         }
+    //     }
+    // }
     
     int user_start;
     int user_target;
