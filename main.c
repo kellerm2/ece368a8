@@ -21,6 +21,9 @@ typedef struct tnode {
 
 gnode** graph;
 int* heap_index;
+int* dist_list;
+int* t_list;
+int* path;
 
 void add_edge(int from, int to, int weight_main[], int period);
 void dijkstra(int source, int SIZE, int period, int target);
@@ -90,9 +93,12 @@ void dijkstra(int source, int SIZE, int period, int target) {
         }
     }
 
-    int dist_list[100];
-    int t_list[100];
-    int path[100];
+    // int dist_list[100];
+    // int t_list[100];
+    // int path[100];
+    dist_list = (int*) malloc(1000000 * sizeof(int));
+    t_list = (int*) malloc(1000000 * sizeof(int));
+    path = (int*) malloc(1000000 * sizeof(int));
     for (int y=0;y<100;y++) {
         dist_list[y] = 0;
         t_list[y] = 0;
@@ -145,6 +151,9 @@ void dijkstra(int source, int SIZE, int period, int target) {
     }
     printf("\n");
 
+    free(dist_list);
+    free(t_list);
+    free(path);
     free(arr);
     free(heap_index);
 }
