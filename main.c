@@ -262,7 +262,7 @@ int main(int argc, char* argv[]) {
     }
 
     // free weights alloc, gnode alloc, graph
-    for (int j = 0; j < vertices; j++) {
+    for (int j = 0; j < vertices * period; j++) {
         gnode* current = graph[j];
         while (current != NULL) {
             gnode* tofree = current;
