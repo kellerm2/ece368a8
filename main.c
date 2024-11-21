@@ -123,12 +123,12 @@ void dijkstra(int source, int SIZE, int period, int target) {
         
     }
 
-    for (int p = 0; p < 10; p++) {
-        printf("node: %d i: %d pred: %d\n", arr[heap_index[p]].label, heap_index[p], arr[heap_index[p]].predecessor);
-    }
-    printf("min distance: %d\n", min);
-    printf("%d ", mint);
-    printf("%d\n", arr[mint].label);
+    // for (int p = 0; p < 10; p++) {
+    //     printf("node: %d i: %d pred: %d\n", arr[heap_index[p]].label, heap_index[p], arr[heap_index[p]].predecessor);
+    // }
+    // printf("min distance: %d\n", min);
+    // printf("%d ", mint);
+    // printf("%d\n", arr[mint].label);
     int path_index = 0;
     while (arr[mint].predecessor != -1) {
         //printf(" %d pred: %d\n", arr[mint].label, arr[mint].predecessor);
