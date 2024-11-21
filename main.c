@@ -38,6 +38,9 @@ void add_edge(int from, int to, int weight_main[], int period) {
     }
 }
 
+// Finds the shortest paths between a source node and all other nodes,
+// then prints the traversal of the shortest path from the source node to a target node
+// Taken from course slides
 void dijkstra(int source, int SIZE, int period, int target) {
     int n = SIZE * period; // n nodes
     struct tnode* arr = (struct tnode*) malloc(n * sizeof(struct tnode));
@@ -54,7 +57,7 @@ void dijkstra(int source, int SIZE, int period, int target) {
     int source_index = source * period + 0;  // Start at time 0
     arr[source_index].distance = 0;
     
-    // Fix: Swap source vertex to front of heap
+    // swap source vertex to front of heap
     tnode temp = arr[0];
     arr[0] = arr[source_index];
     arr[source_index] = temp;
@@ -146,6 +149,8 @@ void dijkstra(int source, int SIZE, int period, int target) {
     free(heap_index);
 }
 
+// dequeues the last node in the min heap, so it is no longer included in the dijkstra
+// search for the shortest path, taken from course slides
 void dequeue(tnode* arr, int n, int period) { // n is the last index
     tnode temp = arr[n]; // exchange the root and the last node
     arr[n] = arr[0];
@@ -175,6 +180,8 @@ void dequeue(tnode* arr, int n, int period) { // n is the last index
     // printf("DEQUEUED_______________\n");
 }
 
+// Upward heapify the min heap by swapping a node with its parent if it is smaller by the
+// definition of a min heap
 void update(struct tnode* arr, int i, int period, int n)
 {
     //Don’t forget to update heap_index
@@ -258,10 +265,10 @@ int main(int argc, char* argv[]) {
     for (int j = 0; j < vertices; j++) {
         gnode* current = graph[j];
         while (current != NULL) {
-            gnode* temp = current;
+            gnode* tofree = current;
             current = current->next;
             //free(temp->weights);
-            free(temp);
+            free(tofree);
         }
     }
     free(graph);
